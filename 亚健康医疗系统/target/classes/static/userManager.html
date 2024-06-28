@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有用户信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #888;
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .add-user-form {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .form-group select {
+            width: 100%;
+        }
+
+        .form-group button {
+            margin-top: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>所有用户信息</h2>
+    <button onclick="toggleAddUserForm()">添加用户</button>
+
+    <div class="add-user-form" id="addUserForm">
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="age">年龄:</label>
+            <input type="number" id="age" name="age" required>
+        </div>
+        <div class="form-group">
+            <label for="gender">性别:</label>
+            <select id="gender" name="gender" required>
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="bloodPressure">血压:</label>
+            <input type="text" id="bloodPressure" name="bloodPressure" required>
+        </div>
+        <div class="form-group">
+            <label for="lungCapacity">肺活量:</label>
+            <input type="text" id="lungCapacity" name="lungCapacity" required>
+        </div>
+        <div class="form-group">
+            <label for="role">角色:</label>
+            <select id="role" name="role" required>
+                <option value="用户">用户</option>
+                <option value="管理员">管理员</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <button onclick="addUser()">确认添加</button>
+        </div>
+    </div>
+
+    <table id="userTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>密码</th>
+            <th>年龄</th>
+            <th>性别</th>
+            <th>血压</th>
+            <th>肺活量</th>
+            <th>角色</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <!-- User data will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchAllUsers();
+    });
+
+    function fetchAllUsers() {
+        fetch('http://localhost:8080/users/all')
+            .then(response => response.json())
+            .then(users => {
+                const userTableBody = document.getElementById('userTableBody');
+                users.forEach(user => {
+                    const row = `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>${user.password}</td>
+                            <td>${user.age}</td>
+                            <td>${user.gender}</td>
+                            <td>${user.bloodPressure}</td>
+                            <td>${user.lungCapacity}</td>
+                            <td>${user.role}</td>
+                            <td><button class="delete-button" onclick="deleteUser(${user.id})">删除</button></td>
+                        </tr>
+                    `;
+                    userTableBody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                alert('获取用户信息失败！');
+            });
+    }
+
+    function toggleAddUserForm() {
+        const addUserForm = document.getElementById('addUserForm');
+        addUserForm.style.display = addUserForm.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addUser() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const age = document.getElementById('age').value;
+        const gender = document.getElementById('gender').value;
+        const bloodPressure = document.getElementById('bloodPressure').value;
+        const lungCapacity = document.getElementById('lungCapacity').value;
+        const role = document.getElementById('role').value;
+
+        const newUser = {
+            username: username,
+            password: password,
+            age: parseInt(age),
+            gender: gender,
+            bloodPressure: bloodPressure,
+            lungCapacity: lungCapacity,
+            role: role
+        };
+
+        fetch('http://localhost:8080/users/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newUser),
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.msg);
+                window.location.reload(); // Refresh page after adding user
+            })
+            .catch((error) => {
+                console.error('Error adding user:', error);
+                alert('添加用户失败！');
+            });
+    }
+
+    function deleteUser(userId) {
+        if (confirm('确定要删除该用户吗？')) {
+            fetch(`http://localhost:8080/users/delete/${userId}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.msg);
+                    window.location.reload(); // Refresh page after deletion
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+                    alert('删除用户失败！');
+                });
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!-- self_test.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者自测</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.5.7/css/layui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.staticfile.org/layui/2.5.7/layui.js"></script>
+
+</head>
+
+<style>
+    .layui-container {
+        padding: 20px;
+        border: 2px solid #f2f2f2; /* 添加外边框颜色 */
+        border-radius: 10px; /* 圆角边框 */
+        box-shadow: 0px 0px 10px #888; /* 阴影效果 */
+    }
+</style>
+
+
+
+<body>
+    <div class="layui-container" style="padding: 20px;">
+        <form class="layui-form" id="ecgForm">
+         
+            <div class="layui-form-item">
+                <label class="layui-form-label">RRI</label>
+                <div class="layui-input-block">
+                    <input type="text" name="rri" lay-verify="required" placeholder="请输入RRI" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">HR</label>
+                <div class="layui-input-block">
+                    <input type="text" name="hr" lay-verify="required" placeholder="请输入HR" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">LF</label>
+                <div class="layui-input-block">
+                    <input type="text" name="lf" lay-verify="required" placeholder="请输入LF" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">HF</label>
+                <div class="layui-input-block">
+                    <input type="text" name="hf" lay-verify="required" placeholder="请输入HF" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">LF_HF</label>
+                <div class="layui-input-block">
+                    <input type="text" name="lfHf" lay-verify="required" placeholder="请输入LF_HF" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">SDNN</label>
+                <div class="layui-input-block">
+                    <input type="text" name="sdnn" lay-verify="required" placeholder="请输入SDNN" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">RMSSD</label>
+                <div class="layui-input-block">
+                    <input type="text" name="rmssd" lay-verify="required" placeholder="请输入RMSSD" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">SD_RM</label>
+                <div class="layui-input-block">
+                    <input type="text" name="sdrm" lay-verify="required" placeholder="请输入SD_RM" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">询问AI</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('ecgForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            const formData = new FormData(document.getElementById('ecgForm'));
+            const requestBody = {};
+    
+            formData.forEach((value, key) => {
+              requestBody[key] = value;
+            });
+         const userName = localStorage.getItem('currentUser');
+            
+         console.log(userName); // 打印你存储的 token 值
+
+         requestBody['patientName']=userName;
+
+            fetch('http://localhost:8080/AI/analyze', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(requestBody)
+            })
+              .then(response => response.json())
+              .then(data => {
+                layui.use('layer', function(){
+                  var layer = layui.layer;
+                  var alarmMsg = data.alarm.replace(/\n/g, '<br>'); // 将换行符替换为HTML换行标签
+
+                    layer.open({
+                        title: '心电图分析结果',
+                        content: `<div style="padding: 40px; font-size: 18px;">用户：${data.userName}<br>分析结果：${alarmMsg}</div>`
+                    });
+
+                });
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+          });
+        });
+      </script>
+    
+</body>
+</html>

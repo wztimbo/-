@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康分析</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/layui/2.5.7/css/layui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.staticfile.org/layui/2.5.7/layui.js"></script>
+</head>
+
+<style>
+    .layui-container {
+        padding: 20px;
+        border: 2px solid #f2f2f2;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px #888;
+    }
+</style>
+
+<body>
+<div class="layui-container">
+    <form class="layui-form" id="physicalIndicatorsForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">体温</label>
+            <div class="layui-input-block">
+                <input type="text" name="bodyTemperature" lay-verify="required" placeholder="请输入体温" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">脉搏</label>
+            <div class="layui-input-block">
+                <input type="text" name="pulse" lay-verify="required" placeholder="请输入脉搏" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">收缩压</label>
+            <div class="layui-input-block">
+                <input type="text" name="systolicBloodPressure" lay-verify="required" placeholder="请输入收缩压" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">舒张压</label>
+            <div class="layui-input-block">
+                <input type="text" name="diastolicBloodPressure" lay-verify="required" placeholder="请输入舒张压" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">血氧饱和度</label>
+            <div class="layui-input-block">
+                <input type="text" name="bloodOxygenSaturation" lay-verify="required" placeholder="请输入血氧饱和度" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">血糖</label>
+            <div class="layui-input-block">
+                <input type="text" name="bloodGlucose" lay-verify="required" placeholder="请输入血糖" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">呼吸频率</label>
+            <div class="layui-input-block">
+                <input type="text" name="respiratoryRate" lay-verify="required" placeholder="请输入呼吸频率" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">BMI指数</label>
+            <div class="layui-input-block">
+                <input type="text" name="bmi" lay-verify="required" placeholder="请输入BMI指数" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">咨询建议</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('physicalIndicatorsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(document.getElementById('physicalIndicatorsForm'));
+            const requestBody = {};
+
+            formData.forEach((value, key) => {
+                requestBody[key] = value;
+            });
+
+            const userName = localStorage.getItem('currentUser');
+            requestBody['patientName'] = userName;
+
+            fetch('http://localhost:8080/AI/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            })
+                .then(response => response.text())
+                .then(data => {
+                    layui.use('layer', function(){
+                        var layer = layui.layer;
+
+                        layer.open({
+                            title: '健康分析结果',
+                            area: ['600px', 'auto'], // 设置弹窗宽度为600px，高度自适应
+                            content: `<div style="padding: 40px; font-size: 18px;"><br>分析结果：${data}</div>`
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>登录页面</title>
+  <link rel="stylesheet" href="//cdn.staticfile.org/layui/2.5.7/css/layui.min.css">
+  <style>
+    body {
+      background-image: url('img/img.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      /* 让背景图基于容器大小伸缩 */
+      background-color: #464646;
+
+    }
+
+    .login-box {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      margin: 0 auto;
+      margin-top: 120px;
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 24px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 20px;
+    }
+
+    .login-form-item {
+      margin-bottom: 20px;
+    }
+    .login-form-item1 {
+      margin-bottom: 20px;
+    }
+
+    .login-form-label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 3px;
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 40px;
+      background-color: #1e9fff;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .login-btn,
+  .login-btn-like {
+    display: inline-block;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    background-color: #1e9fff;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    text-align: center;
+    text-decoration: none; /* 确保超链接没有下划线 */
+    cursor: pointer;
+  }
+
+  .login-btn-like:hover {
+    background-color: #0090ff;
+  }
+
+    .login-btn:hover {
+      background-color: #0090ff;
+    }
+
+
+    .password-input-container {
+      position: relative;
+    }
+
+    #passwordInput {
+      padding-right: 40px; /* Make space for the show/hide password button */
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      color: #1e9fff; /* Change the color for Show/Hide Password */
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+<div>
+
+  <div class="login-box">
+
+    <form class="layui-form" action="">
+
+      <div class="login-title">亚健康管理系统网站</div>
+
+      <div class="login-form-item">
+        <label class="login-form-label">用户名</label>
+        <input type="text" name="username" placeholder="请输入用户名" autocomplete="off"
+               class="layui-input login-input">
+      </div>
+
+      <div class="login-form-item">
+        <label class="login-form-label">密码</label>
+        <div class="password-input-container">
+          <input type="password" id="passwordInput" name="password" placeholder="请输入密码" autocomplete="off" class="layui-input login-input">
+          <span id="togglePassword" class="toggle-password" onclick="togglePassword()">显示密码</span>
+        </div>
+      </div>
+
+
+      <div class="login-form-item">
+        <button class="login-btn" lay-submit lay-filter="login">立即登录</button>
+      </div>
+
+
+
+
+
+
+    </form>
+
+  </div>
+
+</div>
+
+<script src="//cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+<script src="//cdn.staticfile.org/layui/2.5.7/layui.min.js"></script>
+<script>
+  function togglePassword() {
+    var pwdInput = document.getElementById('passwordInput');
+    var toggleBtn = document.getElementById('togglePassword');
+
+    if (pwdInput.type === 'password') {
+      pwdInput.type = 'text';
+      toggleBtn.textContent = '隐藏密码';
+    } else {
+      pwdInput.type = 'password';
+      toggleBtn.textContent = '显示密码';
+    }
+  }
+  layui.use(['form'], function () {
+    var form = layui.form;
+
+    form.on('submit(login)', function (data) {
+      console.log(data.field);
+      $.ajax({
+        url: 'http://localhost:8080/users/login',
+        type: 'POST',
+        dataType: 'json',
+        data: data.field,
+        success: function (res) {
+          if (res.code === 200) {
+            if (res.msg === "1"){
+            localStorage.setItem('current', res.data);
+            alert('登录成功');
+            window.location.href = 'mainAdmin.html';
+            }
+            if (res.msg === "2"){
+            localStorage.setItem('current', res.data);
+            alert('登录成功');
+            window.location.href = 'mainUser.html';
+            }
+
+            if (res.msg === "0"){
+              alert("登录失败，用户名或密码错误");
+              window.location.href = 'login.html';
+            }
+
+          } else {
+          alert("登录失败，用户名或密码错误");
+          window.location.href = 'login.html';
+          }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log(xhr.responseText);
+        }
+      });
+      return false;
+    });
+  });
+</script>
+</body>
+</html>
